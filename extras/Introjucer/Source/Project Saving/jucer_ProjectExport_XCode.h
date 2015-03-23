@@ -194,6 +194,8 @@ protected:
         String getCustomXcodeFlags() const             { return config   [Ids::customXcodeFlags]; }
         Value  getCppLibTypeValue()                    { return getValue (Ids::cppLibType); }
         String getCppLibType() const                   { return config   [Ids::cppLibType]; }
+        Value  getCppLanguageDialectValue()            { return getValue (Ids::cppLanguageDialect); }
+        String getCppLanguageDialect() const           { return config   [Ids::cppLanguageDialect]; }
         Value  getCodeSignIdentityValue()              { return getValue (Ids::codeSigningIdentity); }
         String getCodeSignIdentity() const             { return config   [Ids::codeSigningIdentity]; }
         Value  getFastMathValue()                      { return getValue (Ids::fastMath); }
@@ -254,6 +256,14 @@ protected:
             props.add (new ChoicePropertyComponent (getCppLibTypeValue(), "C++ Library", StringArray (cppLibNames), cppLibValues),
                        "The type of C++ std lib that will be linked.");
 
+            const char* cppLanguageDialectNames[] = { "Use Default", "Use c++14 dialect", nullptr };
+            Array<var> cppLanguageDialectValues;
+            cppLanguageDialectValues.add (var::null);
+            cppLanguageDialectValues.add ("c++14");
+            
+            props.add (new ChoicePropertyComponent (getCppLanguageDialectValue(), "C++ Language Dialect", StringArray (cppLanguageDialectNames), cppLanguageDialectValues),
+                       "The C++ lanugauage dialect that will be used.");
+            
             props.add (new TextPropertyComponent (getCodeSignIdentityValue(), "Code-signing Identity", 8192, false),
                        "The name of a code-signing identity for Xcode to apply.");
 
@@ -806,7 +816,12 @@ private:
         }
 
         s.add ("GCC_VERSION = " + gccVersion);
-        s.add ("CLANG_CXX_LANGUAGE_STANDARD = \"c++0x\"");
+        
+        if (config.getCppLanguageDialect().isEmpty())
+            s.add ("CLANG_CXX_LANGUAGE_STANDARD = \"c++0x\"");
+        else
+            s.add ("CLANG_CXX_LANGUAGE_STANDARD = " + config.getCppLanguageDialect().quoted());
+        
         s.add ("CLANG_LINK_OBJC_RUNTIME = NO");
 
         if (config.getCodeSignIdentity().isNotEmpty())
