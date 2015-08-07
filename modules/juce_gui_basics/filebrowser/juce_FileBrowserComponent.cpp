@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -387,7 +387,7 @@ void FileBrowserComponent::fileDoubleClicked (const File& f)
     {
         setRoot (f);
 
-        if ((flags & canSelectDirectories) != 0)
+        if ((flags & canSelectDirectories) != 0 && (flags & doNotClearFileNameOnRootChange) == 0)
             filenameBox.setText (String::empty);
     }
     else
@@ -432,7 +432,9 @@ void FileBrowserComponent::textEditorReturnKeyPressed (TextEditor&)
         {
             setRoot (f);
             chosenFiles.clear();
-            filenameBox.setText (String::empty);
+
+            if ((flags & doNotClearFileNameOnRootChange) == 0)
+                filenameBox.setText (String());
         }
         else
         {

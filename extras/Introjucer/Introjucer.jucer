@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="M70qfTRRk" name="The Introjucer" projectType="guiapp" juceLinkage="amalg_multi"
-              juceFolder="../../juce" jucerVersion="3.1.1" version="3.1.1"
+              juceFolder="../../juce" jucerVersion="3.2.0" version="3.2.0"
               buildVST="1" buildRTAS="0" buildAU="1" vstFolderMac="~/SDKs/vstsdk2.4"
               vstFolderPC="c:\SDKs\vstsdk2.4" rtasFolderMac="~/SDKs/PT_80_SDK"
               rtasFolderPC="c:\SDKs\PT_80_SDK" pluginName="The Introjucer"
@@ -10,8 +10,8 @@
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginSilenceInIsSilenceOut="0" pluginTailLength="0" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="TheIntrojucerAU" pluginAUViewClass="TheIntrojucerAU_V1"
-              pluginRTASCategory="" bundleIdentifier="com.rawmaterialsoftware.introjucer"
-              companyName="Raw Material Software Ltd." includeBinaryInAppConfig="1">
+              pluginRTASCategory="" bundleIdentifier="com.roli.introjucer"
+              companyName="ROLI Ltd." includeBinaryInAppConfig="1">
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" vstFolder="~/SDKs/vstsdk2.4" rtasFolder="~/SDKs/PT_80_SDK"
                documentExtensions=".jucer" objCExtraSuffix="zNNCr" bigIcon="rVgowdy"
@@ -138,6 +138,23 @@
         <MODULEPATH id="juce_core" path="../../modules"/>
       </MODULEPATHS>
     </VS2013>
+    <VS2015 targetFolder="Builds/VisualStudio2015" bigIcon="rVgowdy">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="The Introjucer"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="2" targetName="The Introjucer"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_gui_extra" path="../../modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../modules"/>
+        <MODULEPATH id="juce_graphics" path="../../modules"/>
+        <MODULEPATH id="juce_events" path="../../modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../modules"/>
+        <MODULEPATH id="juce_core" path="../../modules"/>
+      </MODULEPATHS>
+    </VS2015>
     <CODEBLOCKS targetFolder="Builds/CodeBlocks">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="The Introjucer"/>
@@ -160,6 +177,8 @@
             file="Source/Application/jucer_AppearanceSettings.cpp"/>
       <FILE id="oCCddi" name="jucer_AppearanceSettings.h" compile="0" resource="0"
             file="Source/Application/jucer_AppearanceSettings.h"/>
+      <FILE id="IvfYzk" name="jucer_AutoUpdater.cpp" compile="1" resource="0"
+            file="Source/Application/jucer_AutoUpdater.cpp"/>
       <FILE id="PXX8Yi" name="jucer_Application.h" compile="0" resource="0"
             file="Source/Application/jucer_Application.h"/>
       <FILE id="RWf1Jy" name="jucer_AutoUpdater.h" compile="0" resource="0"
@@ -432,6 +451,8 @@
             file="Source/Project/jucer_ProjectType.cpp"/>
       <FILE id="davId" name="jucer_ProjectType.h" compile="0" resource="0"
             file="Source/Project/jucer_ProjectType.h"/>
+      <FILE id="n5C8LS" name="jucer_TreeItemTypes.h" compile="0" resource="0"
+            file="Source/Project/jucer_TreeItemTypes.h"/>
     </GROUP>
     <GROUP id="Ga8fLmv" name="Utility">
       <FILE id="mceJWJc" name="jucer_CodeHelpers.cpp" compile="1" resource="0"
@@ -506,6 +527,8 @@
             file="Source/Wizards/jucer_StartPageComponent.h"/>
       <FILE id="BlL6EA" name="jucer_TemplateThumbnailsComponent.h" compile="0"
             resource="0" file="Source/Wizards/jucer_TemplateThumbnailsComponent.h"/>
+    </GROUP>
+    <GROUP id="KPIRFfz" name="BinaryData">
       <GROUP id="{2EFFC5F3-CE4A-FCEB-391B-A644E7394EE3}" name="templates">
         <FILE id="Ksvdgw" name="jucer_AnimatedComponentTemplate.cpp" compile="0"
               resource="1" file="Source/BinaryData/jucer_AnimatedComponentTemplate.cpp"/>
@@ -550,8 +573,6 @@
         <FILE id="MMiar4" name="jucer_OpenGLComponentTemplate.cpp" compile="0"
               resource="1" file="Source/BinaryData/jucer_OpenGLComponentTemplate.cpp"/>
       </GROUP>
-    </GROUP>
-    <GROUP id="KPIRFfz" name="BinaryData">
       <FILE id="RSJcrRl" name="AudioPluginXCodeScript.txt" compile="0" resource="1"
             file="Source/BinaryData/AudioPluginXCodeScript.txt"/>
       <FILE id="eYn4jB" name="background_tile.png" compile="0" resource="1"
@@ -600,7 +621,7 @@
                JUCE_USE_FLAC="disabled" JUCE_USE_CDBURNER="disabled" JUCE_USE_CDREADER="disabled"
                JUCE_USE_CAMERA="disabled" JUCE_PLUGINHOST_VST="disabled" JUCE_PLUGINHOST_AU="disabled"
                JUCE_USE_OGGVORBIS="disabled" JUCE_USE_COREIMAGE_LOADER="disabled"
-               JUCE_LOG_ASSERTIONS="enabled"/>
+               JUCE_LOG_ASSERTIONS="enabled" JUCE_USE_CURL="enabled"/>
   <MODULES>
     <MODULE id="juce_core" showAllCode="1"/>
     <MODULE id="juce_cryptography" showAllCode="1"/>

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -52,6 +52,7 @@ public:
     bool launchProject() override                       { return false; }
     bool usesMMFiles() const override                   { return false; }
     bool isLinuxMakefile() const override               { return true; }
+    bool isLinux() const override                       { return true; }
     bool canCopeWithDuplicateFiles() override           { return false; }
 
     void createExporterProperties (PropertyListBuilder&) override
@@ -147,7 +148,7 @@ private:
         searchPaths.insert (0, "/usr/include/freetype2");
         searchPaths.insert (0, "/usr/include");
 
-        searchPaths.removeDuplicates (false);
+        searchPaths = getCleanedStringArray (searchPaths);
 
         for (int i = 0; i < searchPaths.size(); ++i)
             out << " -I " << escapeSpaces (FileHelpers::unixStylePath (replacePreprocessorTokens (config, searchPaths[i])));
@@ -155,7 +156,7 @@ private:
 
     void writeCppFlags (OutputStream& out, const BuildConfiguration& config) const
     {
-        out << "  CPPFLAGS := $(DEPFLAGS) -std=c++11";
+        out << "  CPPFLAGS := $(DEPFLAGS)";
         writeDefineFlags (out, config);
         writeHeaderPathFlags (out, config);
         out << newLine;
@@ -165,16 +166,26 @@ private:
     {
         out << "  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR)";
 
-        if (makefileIsDLL)
-            out << " -shared";
+        {
+            StringArray flags (makefileExtraLinkerFlags);
 
-        if (! config.isDebug())
-            out << " -fvisibility=hidden";
+            if (makefileIsDLL)
+                flags.add ("-shared");
+
+            if (! config.isDebug())
+                flags.add ("-fvisibility=hidden");
+
+            if (flags.size() > 0)
+                out << " " << getCleanedStringArray (flags).joinIntoString (" ");
+        }
 
         out << config.getGCCLibraryPathFlags();
 
         for (int i = 0; i < linuxLibs.size(); ++i)
             out << " -l" << linuxLibs[i];
+
+        if (getProject().isConfigFlagEnabled ("JUCE_USE_CURL"))
+            out << " -lcurl";
 
         StringArray libraries;
         libraries.addTokens (getExternalLibrariesString(), ";", "\"'");
@@ -224,7 +235,7 @@ private:
             << (" "  + replacePreprocessorTokens (config, getExtraCompilerFlagsString())).trimEnd()
             << newLine;
 
-        out << "  CXXFLAGS += $(CFLAGS)" << newLine;
+        out << "  CXXFLAGS += $(CFLAGS) -std=c++11" << newLine;
 
         writeLinkerFlags (out, config);
 

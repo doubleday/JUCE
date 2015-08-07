@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -520,6 +520,10 @@ public:
                                                 | kAudioUnitParameterFlag_HasCFNameString
                                                 | kAudioUnitParameterFlag_ValuesHaveStrings);
 
+           #if JucePlugin_AUHighResolutionParameters
+            outParameterInfo.flags |= (UInt32) kAudioUnitParameterFlag_IsHighResolution;
+           #endif
+
             const String name (juceFilter->getParameterName (index));
 
             // set whether the param is automatable (unnamed parameters aren't allowed to be automated)
@@ -1005,6 +1009,8 @@ public:
 
            #if ! JucePlugin_SilenceInProducesSilenceOut
             ioActionFlags &= (AudioUnitRenderActionFlags) ~kAudioUnitRenderAction_OutputIsSilence;
+           #else
+            ignoreUnused (ioActionFlags);
            #endif
         }
 

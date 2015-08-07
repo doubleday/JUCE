@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -22,8 +22,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCER_AUDIOPLUGINMODULE_JUCEHEADER__
-#define __JUCER_AUDIOPLUGINMODULE_JUCEHEADER__
+#ifndef JUCER_AUDIOPLUGINMODULE_H_INCLUDED
+#define JUCER_AUDIOPLUGINMODULE_H_INCLUDED
 
 
 //==============================================================================
@@ -243,7 +243,7 @@ namespace VSTHelpers
 
             if (exporter.isVisualStudio())
                 exporter.extraSearchPaths.add (path.toWindowsStyle());
-            else if (exporter.isLinuxMakefile() || exporter.isCodeBlocksLinux() || exporter.isXcode())
+            else if (exporter.isLinux() || exporter.isXcode())
                 exporter.extraSearchPaths.insert (0, path.toUnixStyle());
         }
     }
@@ -282,7 +282,7 @@ namespace VSTHelpers
 
         if (exporter.isWindows())
             exporter.extraSearchPaths.add (juceWrapperFolder.toWindowsStyle());
-        else if (exporter.isLinuxMakefile() || exporter.isCodeBlocksLinux() )
+        else if (exporter.isLinux())
             exporter.extraSearchPaths.add (juceWrapperFolder.toUnixStyle());
 
         if (exporter.isVisualStudio())
@@ -305,6 +305,9 @@ namespace VSTHelpers
                         config->getValue (Ids::postbuildCommand) = "copy /Y \"$(OutDir)\\$(TargetFileName)\" \"$(OutDir)\\$(TargetName).vst3\"";
             }
         }
+
+        if (exporter.isLinux())
+            exporter.makefileExtraLinkerFlags.add ("-Wl,--no-undefined");
     }
 
     static inline void createPropertyEditors (ProjectExporter& exporter, PropertyListBuilder& props, bool isVST3)
@@ -681,4 +684,4 @@ namespace AAXHelpers
     }
 }
 
-#endif   // __JUCER_AUDIOPLUGINMODULE_JUCEHEADER__
+#endif   // JUCER_AUDIOPLUGINMODULE_H_INCLUDED

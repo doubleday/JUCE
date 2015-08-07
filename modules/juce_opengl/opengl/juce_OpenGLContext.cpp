@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -188,6 +188,8 @@ public:
             context.currentRenderScale = scale;
             context.renderer->renderOpenGL();
             clearGLError();
+
+            bindVertexArray();
         }
 
         if (context.renderComponents)
@@ -229,6 +231,14 @@ public:
                     invalidateAll();
             }
         }
+    }
+
+    void bindVertexArray() noexcept
+    {
+       #if JUCE_OPENGL3
+        if (vertexArrayObject != 0)
+            glBindVertexArray (vertexArrayObject);
+       #endif
     }
 
     void checkViewportBounds()
@@ -288,6 +298,7 @@ public:
             context.extensions.glActiveTexture (GL_TEXTURE0);
 
         glBindTexture (GL_TEXTURE_2D, cachedImageFrameBuffer.getTextureID());
+        bindVertexArray();
 
         const Rectangle<int> cacheBounds (cachedImageFrameBuffer.getWidth(), cachedImageFrameBuffer.getHeight());
         context.copyTexture (cacheBounds, cacheBounds, cacheBounds.getWidth(), cacheBounds.getHeight(), false);
@@ -396,7 +407,7 @@ public:
         if (OpenGLShaderProgram::getLanguageVersion() > 1.2)
         {
             glGenVertexArrays (1, &vertexArrayObject);
-            glBindVertexArray (vertexArrayObject);
+            bindVertexArray();
         }
        #endif
 
@@ -559,7 +570,7 @@ private:
     {
         Component& comp = *getComponent();
         CachedImage* const newCachedImage = new CachedImage (context, comp,
-                                                             context.pixelFormat,
+                                                             context.openGLPixelFormat,
                                                              context.contextToShareWith);
         comp.setCachedComponentImage (newCachedImage);
         newCachedImage->start(); // (must wait until this is attached before starting its thread)
@@ -636,7 +647,7 @@ void OpenGLContext::setPixelFormat (const OpenGLPixelFormat& preferredPixelForma
     // Call it before attaching your context, or use detach() first, before calling this!
     jassert (nativeContext == nullptr);
 
-    pixelFormat = preferredPixelFormat;
+    openGLPixelFormat = preferredPixelFormat;
 }
 
 void OpenGLContext::setNativeSharedContext (void* nativeContextToShareWith) noexcept
@@ -687,6 +698,14 @@ bool OpenGLContext::isAttached() const noexcept
 Component* OpenGLContext::getTargetComponent() const noexcept
 {
     return attachment != nullptr ? attachment->getComponent() : nullptr;
+}
+
+OpenGLContext* OpenGLContext::getContextAttachedTo (Component& c) noexcept
+{
+    if (CachedImage* const ci = CachedImage::get (c))
+        return &(ci->context);
+
+    return nullptr;
 }
 
 static ThreadLocalValue<OpenGLContext*> currentThreadActiveContext;

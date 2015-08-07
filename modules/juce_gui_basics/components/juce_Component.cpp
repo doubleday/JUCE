@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -154,7 +154,7 @@ private:
 
         bool shouldBailOut() const noexcept
         {
-            return checker.shouldBailOut() || safePointer == 0;
+            return checker.shouldBailOut() || safePointer == nullptr;
         }
 
     private:
@@ -1153,12 +1153,15 @@ void Component::setBounds (const int x, const int y, int w, int h)
 
 void Component::sendMovedResizedMessagesIfPending()
 {
-    if (flags.isMoveCallbackPending || flags.isResizeCallbackPending)
-    {
-        sendMovedResizedMessages (flags.isMoveCallbackPending, flags.isResizeCallbackPending);
+    const bool wasMoved   = flags.isMoveCallbackPending;
+    const bool wasResized = flags.isResizeCallbackPending;
 
+    if (wasMoved || wasResized)
+    {
         flags.isMoveCallbackPending = false;
         flags.isResizeCallbackPending = false;
+
+        sendMovedResizedMessages (wasMoved, wasResized);
     }
 }
 

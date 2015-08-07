@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2013 - Raw Material Software Ltd.
+   Copyright (c) 2015 - ROLI Ltd.
 
    Permission is granted to use this software under the terms of either:
    a) the GPL v2 (or any later version)
@@ -318,6 +318,8 @@ namespace
 
     static void translateJuceToXMouseWheelModifiers (const MouseEvent& e, const float increment, XEvent& ev) noexcept
     {
+        ignoreUnused (e);
+
         if (increment < 0)
         {
             ev.xbutton.button = Button5;
@@ -893,13 +895,13 @@ public:
         if (effect == nullptr)
             return 0.0;
 
-        const double sampleRate = getSampleRate();
+        const double currentSampleRate = getSampleRate();
 
-        if (sampleRate <= 0)
+        if (currentSampleRate <= 0)
             return 0.0;
 
         VstIntPtr samples = dispatch (effGetTailSize, 0, 0, 0, 0);
-        return samples / sampleRate;
+        return samples / currentSampleRate;
     }
 
     bool acceptsMidi() const override    { return wantsMidiMessages; }
@@ -984,10 +986,10 @@ public:
 
         if (initialised)
         {
-            if (AudioPlayHead* const playHead = getPlayHead())
+            if (AudioPlayHead* const currentPlayHead = getPlayHead())
             {
                 AudioPlayHead::CurrentPositionInfo position;
-                if (playHead->getCurrentPosition (position))
+                if (currentPlayHead->getCurrentPosition (position))
                 {
 
                     vstHostTime.samplePos          = (double) position.timeInSamples;
@@ -1284,7 +1286,12 @@ public:
 
             case audioMasterSizeWindow:
                 if (AudioProcessorEditor* ed = getActiveEditor())
-                    ed->setSize (index, (int) value);
+                {
+                   #if JUCE_LINUX
+                    const MessageManagerLock mmLock;
+                   #endif
+                     ed->setSize (index, (int) value);
+                }
 
                 return 1;
 
@@ -1628,7 +1635,7 @@ public:
             void* data = nullptr;
             const size_t bytes = (size_t) dispatch (effGetChunk, isPreset ? 1 : 0, 0, &data, 0.0f);
 
-            if (data != nullptr && bytes <= maxSizeMB * 1024 * 1024)
+            if (data != nullptr && bytes <= (size_t) maxSizeMB * 1024 * 1024)
             {
                 mb.setSize (bytes);
                 mb.copyFrom (data, 0, bytes);
@@ -1973,9 +1980,13 @@ public:
            #elif JUCE_LINUX
             if (pluginWindow != 0)
             {
-                XResizeWindow (display, pluginWindow, getWidth(), getHeight());
-                XMoveWindow (display, pluginWindow, pos.getX(), pos.getY());
+                XMoveResizeWindow (display, pluginWindow,
+                                   pos.getX(), pos.getY(),
+                                   (unsigned int) getWidth(),
+                                   (unsigned int) getHeight());
+
                 XMapRaised (display, pluginWindow);
+                XFlush (display);
             }
            #endif
 
@@ -2078,13 +2089,13 @@ public:
             }
            #endif
 
-            static bool reentrant = false;
+            static bool reentrantGuard = false;
 
-            if (! reentrant)
+            if (! reentrantGuard)
             {
-                reentrant = true;
+                reentrantGuard = true;
                 plugin.dispatch (effEditIdle, 0, 0, 0, 0);
-                reentrant = false;
+                reentrantGuard = false;
             }
 
            #if JUCE_LINUX
